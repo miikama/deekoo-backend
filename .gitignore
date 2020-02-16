@@ -1,0 +1,12 @@
+# vscode
+**/*code-workspace
+.vscode
+
+# python
+**/__pycache__
+env
+**/.pytest_cache
+**/*.egg-info
+
+# databases
+**/*.db
