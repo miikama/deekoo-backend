@@ -21,9 +21,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[        
-        'flask',        
-        'Flask-SQLAlchemy',   
-        'passlib',     
+        'flask',
+        'Flask-SQLAlchemy',  
+        'Flask-HTTPAuth',    
+        'passlib',
     ],
     extras_require={
         'dev': [

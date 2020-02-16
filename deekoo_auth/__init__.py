@@ -3,8 +3,10 @@ import os
 
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
+from flask_httpauth import HTTPBasicAuth 
 
 db = SQLAlchemy()
+auth = HTTPBasicAuth()
 
 from deekoo_auth.database import initialize_database
 
@@ -12,9 +14,7 @@ def create_app(config_path: str):
     """
         Given a path to config.py file, init app with database
 
-        Configuration should have at least following fields:
-
-        
+        Different configuration files are in ../config folder.       
     """
 
     if not os.path.exists(config_path):

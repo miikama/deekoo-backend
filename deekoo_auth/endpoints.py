@@ -1,23 +1,57 @@
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 
 from deekoo_auth.models import User
-from deekoo_auth import db
+from deekoo_auth import db, auth
 
 
 api_endpoints = Blueprint('api', __name__)
 
 
 CREATED = 201
+UNAUTHORIZED = 401
 UNPROCESSABLE_ENTITY = 422
 
 
+class MapEntry:
+
+    def __init__(self, longitude, latitude, user):
+        self.longitude = longitude
+        self.latitude = latitude
+        self.user = user
+
+    def to_json(self):
+        return {
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'user': self.user
+        }
+
+class MapService:
+
+    def entries_for_user(self, user):
+        return {
+            'entries': [
+                MapEntry(60, 25, "Anon").to_json()
+            ]
+        }
+
+
+
 @api_endpoints.route('/authenticate', methods=['POST'])
+@auth.login_required
 def authenticate():
-    print("authenticating")
+    """
+        This route is used to obtain a new access token.
+
+        This can be accessed with a valid access token
+        or with login credentials.
+        
+    """ 
+    token = g.user.generate_token()
 
     return jsonify({
-        "token": ''
+        "token": token.decode('ascii')
     })
 
 
@@ -48,17 +82,15 @@ def get_users():
     users = User.query.all()
     db.session.commit()
 
-    for user in users:
-        print(user)
-
-    return jsonify({})
+    user_list = [str(user) for user in users]
+    
+    return jsonify({'users': user_list})
 
 
 
 @api_endpoints.route('/map', methods=['GET'])
+@auth.login_required
 def map():
-    print("accessing map")
-    return jsonify({
-            'data': 'map data'
-        }) 
+    entries = MapService().entries_for_user(g.user)
+    return jsonify(entries) 
 
