@@ -57,6 +57,9 @@ def authenticate():
 
 @api_endpoints.route('/users', methods=['POST'])
 def new_user():
+    if request.json is None:
+        return jsonify(), UNPROCESSABLE_ENTITY
+        
     username = request.json.get('username')
     password = request.json.get('password')
     email = request.json.get('email', '')
@@ -74,7 +77,7 @@ def new_user():
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({"token": token}), CREATED
+    return jsonify({"token": token.decode('ascii')}), CREATED
 
 
 @api_endpoints.route('/users', methods=['GET'])

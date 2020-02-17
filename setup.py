@@ -33,7 +33,8 @@ setuptools.setup(
     },
     entry_points={
         "console_scripts": [
-            "run_server = deekoo_auth.app:run",            
+            "run_server = deekoo_auth.app:run",
+            "deekoo_cli = deekoo_auth.cli:main",
         ],
     },
 )

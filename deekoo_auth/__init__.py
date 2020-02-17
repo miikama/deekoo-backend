@@ -10,6 +10,8 @@ auth = HTTPBasicAuth()
 
 from deekoo_auth.database import initialize_database
 
+DEFAULT_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config', 'config.py')
+
 def create_app(config_path: str):
     """
         Given a path to config.py file, init app with database

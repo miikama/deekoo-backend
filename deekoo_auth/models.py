@@ -75,6 +75,8 @@ class User(db.Model):
 
     @staticmethod
     def add_user(username, password, email=''):
+        if User.query.filter_by(username=username).first():
+            return None
         user = User(username=username)
         user.set_password(password)
         if email:
