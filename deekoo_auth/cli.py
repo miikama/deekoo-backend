@@ -61,7 +61,6 @@ class ServerCli:
         with app.app_context():            
             users = User.query.all()
         
-        print(f"Got following users: {users}")
         for user in users:
             print(user)
 
