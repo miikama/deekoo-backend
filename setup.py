@@ -23,8 +23,10 @@ setuptools.setup(
     install_requires=[        
         'flask',
         'Flask-SQLAlchemy',  
-        'Flask-HTTPAuth',    
+        'Flask-HTTPAuth',
+        'Flask-Migrate',    
         'passlib',
+        'gunicorn',
     ],
     extras_require={
         'dev': [

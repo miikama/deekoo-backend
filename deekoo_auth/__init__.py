@@ -1,5 +1,6 @@
 
 import os
+import logging
 
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
@@ -8,9 +9,9 @@ from flask_httpauth import HTTPBasicAuth
 db = SQLAlchemy()
 auth = HTTPBasicAuth()
 
-from deekoo_auth.database import initialize_database
-
 DEFAULT_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config', 'config.py')
+
+logger = logging.getLogger(__name__)
 
 def create_app(config_path: str):
     """
@@ -30,7 +31,7 @@ def create_app(config_path: str):
 
     # initialize database 
     db.init_app(app)
-    initialize_database(app, db)
+    logger.info(f"Initializing app with database from {app.config['SQLALCHEMY_DATABASE_URI']}")
 
     # initialize api enpoints
     from deekoo_auth.endpoints import api_endpoints

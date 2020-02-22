@@ -3,6 +3,7 @@ import argparse
 import os
 
 from deekoo_auth import create_app
+from deekoo_auth.database import check_database_available 
 
 usage="""
 
@@ -32,6 +33,9 @@ def run():
     print(f"Deploying app with config {config_full_path}")
 
     app = create_app(config_full_path)
+
+    # we need database to run
+    check_database_available(app)    
     
     app.run()
 

@@ -1,22 +1,38 @@
 
-from flask_sqlalchemy import SQLAlchemy
+import sys
+import logging
+
 from flask import Flask
+from sqlalchemy.exc import OperationalError
 
 from deekoo_auth.models import User
 
-from sqlalchemy.exc import OperationalError
-
-import logging
 logger = logging.getLogger(__name__)
 
-def initialize_database(app: Flask, db: SQLAlchemy):
-    """
-        Check if the database already exists, and if not, init it
-    """
+database_usage = """
+Initialize or upgrade database with 
 
-    with app.app_context():
-        db.create_all()
-        logger.warn("Created database tables")
+python deekoo_auth/cli.py db upgrade
 
+or 
+
+deekoo_cli db upgrade
+"""
+
+def check_database_available(app: Flask):
+    """        
+        The database has to be created outside the
+        application. This is just a step that will 
+        check that the configured database is created
+        and warns the user about missing database.
+    """
+    
+    try:
+        with app.app_context():            
+            users = User.query.first()
+    except OperationalError:
+        print(f"\nDatabase at {app.config['SQLALCHEMY_DATABASE_URI']} does not exist")
+        print(database_usage)
+        sys.exit(1)
             
     
