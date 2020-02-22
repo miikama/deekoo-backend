@@ -5,7 +5,7 @@
 import os
 
 from deekoo_auth import create_app
-from database import check_database_available
+from deekoo_auth.database import check_database_available
 
 """
 
