@@ -1,5 +1,8 @@
 import sys
+import os
 import argparse
+
+from typing import List
 
 from flask_script import Manager
 from flask_migrate import init, migrate, upgrade, Migrate, MigrateCommand
@@ -19,6 +22,9 @@ list_users
             Lists current database accounts
 db  [OPTIONS]
             Interact with the database. (init, migrate, upgrade)
+
+-c, --config 
+            Give the configuration file to use
 """
 
 commands = ('add_user', 'list_users', 'db')
@@ -28,22 +34,31 @@ class ServerCli:
     def __init__(self):
 
         parser = argparse.ArgumentParser(usage=usage)
+        parser.add_argument('-c', '--config',
+                            metavar="/path/to/config.py",
+                            help="Instead of using default config, use this one")
         parser.add_argument('command',
                             metavar=f"One of {commands}",
                             help=f"Entry point for other cli tools, you can select from following actions: {commands}")
-        args = parser.parse_args(sys.argv[1:2])
+        args, unkown_args = parser.parse_known_args()
+
+        # Modify sys.argv to only leave e.g. cli.py db [db_commands]
+        sys.argv = [sys.argv[0], sys.argv[1], *unkown_args]
+        
 
         if not hasattr(self, args.command):
             print(f"The first argument has to be one of {commands}")
             parser.print_usage()
             sys.exit(1)
 
-        getattr(self, args.command)()
+        # use the default configuration if config not given        
+        config_path = os.path.abspath(args.config) if args.config else DEFAULT_CONFIG_PATH        
+
+        getattr(self, args.command)(config_path)
 
 
-
-    def add_user(self):
-
+    def add_user(self, config_path: str):
+        
         parser = argparse.ArgumentParser()
         parser.add_argument('--username', required=True, metavar="Anon", help="The user name to be added.")
         parser.add_argument('--password', required=True, metavar="Secret", help="The password for the new user.")
@@ -51,7 +66,7 @@ class ServerCli:
         parser.add_argument('--role', required=False, default='regular', metavar="admin", help="Either basic dude (regular) or admin (admin)")
         args = parser.parse_args(sys.argv[2:])
 
-        app = create_app(DEFAULT_CONFIG_PATH)
+        app = create_app(config_path)
         check_database_available(app)
         with app.app_context():
             user = User.add_user(args.username, args.password, args.email)
@@ -61,9 +76,9 @@ class ServerCli:
                 print(f"created user: {user}")
 
 
-    def list_users(self):
+    def list_users(self, config_path: str):
 
-        app = create_app(DEFAULT_CONFIG_PATH)
+        app = create_app(config_path)
         check_database_available(app)
         with app.app_context():            
             users = User.query.all()
@@ -77,13 +92,11 @@ class ServerCli:
             print(user)
 
 
-    def db(self):
+    def db(self, config_path: str):
         """
             Small wrapper for flask-migrate
         """        
-        database_commands = ('init', 'migrate', 'upgrade' )
-
-        app = create_app(DEFAULT_CONFIG_PATH)
+        app = create_app(config_path)
 
         # add database migration tools
         migrate = Migrate(app, db)
